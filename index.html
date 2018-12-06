@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>.gifsagainsthumanity</title>
+  <script>
+      isOriginator = !window.location.search.includes('roomId')
+      if (isOriginator) {
+          window.location.search = `roomId=${Math.random() * 100000}&og=true`
+      }
+  </script>
+</head>
+<body>
+  <img class="bodyBackground" src="catburrito.jpg" alt="catburrito"/>
+  <div id="root"></div>
+  <script type="text/javascript" src="app.bundle.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+</body>
+</html>
