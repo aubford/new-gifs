@@ -1,22 +1,19 @@
 const express = require('express')
-const app = express()
-const http = require('http').Server(app)
+const server = express()
+const http = require('http').Server(server)
 const io = require('socket.io')(http)
 const questionBank = require('./questionBank.js')
-const { ROOM_ID } = require('./constants')
-import {
+const {
+  ROOM_ID,
   SET_SOCKET_ID,
   NEW_PLAYER,
-  NEW_PLAYER_SYNC_GAME_STATE,
+  BROADCAST_GAME_STATE,
   START_DAMN_GAME,
   NEW_BOARDCARD,
   SELECTION
-} from './constants'
+} = require('../constants')
 
-app.use(express.static('src'))
-app.get('/', (req, res) => {
-  res.sendFile('./index.html')
-})
+server.use(express.static('dist'))
 
 const getQueryParams = url => {
   const params = {}
@@ -44,28 +41,30 @@ io.on('connection', function(socket) {
       playerSocketId: socket.id,
       name: 'New Player',
       score: 0
-    },
-    gameState => {
-      socket.emit(NEW_PLAYER_SYNC_GAME_STATE, gameState)
     }
   )
+
+  socket.on(BROADCAST_GAME_STATE, gameState => {
+    socket.to(roomId).broadcast.emit(BROADCAST_GAME_STATE, gameState)
+  })
 
   socket.on(START_DAMN_GAME, () => {
     socket.to(roomId).emit(START_DAMN_GAME, generateQuestion())
   })
 
   // funny shit
-  socket.on(NEW_BOARDCARD, function(res) {
+  socket.on(NEW_BOARDCARD, res => {
     io.to(res.roomId).emit(NEW_BOARDCARD, res.card)
   })
-  socket.on(SELECTION, function(res) {
+
+  socket.on(SELECTION, res => {
     io.to(res.roomId).emit(SELECTION, res.playerWinner)
-    setTimeout(function() {
+    setTimeout(() => {
       io.to(res.roomId).emit(START_DAMN_GAME, generateQuestion())
     }, 2500)
   })
 })
 
-http.listen(5000, function() {
+http.listen(5000, () => {
   console.log('listening on *:5000') // eslint-disable-line
 })

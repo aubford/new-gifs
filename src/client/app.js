@@ -1,27 +1,28 @@
-/* globals io */
-import {Component, Fragment} from 'react'
-import {getGif} from './api'
+import { Component } from 'react'
+import { getGif } from './api'
+import io from 'socket.io-client'
+import catburrito from './images/catburrito.jpg'
 import * as React from 'react'
 import {
   SET_SOCKET_ID,
   NEW_PLAYER,
-  NEW_PLAYER_SYNC_GAME_STATE,
+  BROADCAST_GAME_STATE,
   START_DAMN_GAME,
   NEW_BOARDCARD,
   SELECTION
 } from '../constants'
 
-const turnMessage = 'It\'s your turn!  Pick your favorite answer above!'
+const turnMessage = "It's your turn!  Pick your favorite answer above!"
 const notTurnMessage = 'Pick a .gif below as your answer!'
 
-const isNull = (val) => val === null
+const isNull = val => val === null
 const deNuld = (prev, curr) => isNull(prev) && !isNull(curr)
 function classes() {
   return arguments.filter(e => e)
 }
 
 // State held in query params: roomId, og
-export default class App extends Component {
+class App extends Component {
   state = {
     // global
     board: [], // { cardUrl, socketId }
@@ -37,8 +38,13 @@ export default class App extends Component {
   }
   socket = io()
 
-  isPlayerOne = () => this.state.players[0].playerSocketId === this.state.playerSocketId
-  isCurrentlySelector = () => this.state.players[this.state.selector].playerSocketId === this.state.playerSocketId
+  isPlayerOne = () =>
+    this.state.players[0] &&
+    this.state.players[0].socketId === this.state.playerSocketId
+  isCurrentlySelector = () =>
+    this.state.players[this.state.selector] &&
+    this.state.players[this.state.selector].socketId ===
+      this.state.playerSocketId
 
   deal = async () => {
     const newGifs = await Promise.all([
@@ -55,14 +61,19 @@ export default class App extends Component {
   setSocketId = ({ socketId }) => this.setState({ playerSocketId: socketId })
 
   // socket handlers
-  handleNewPlayer = (newPlayer, returnGameState) => {
+  handleNewPlayer = (newPlayer) => {
     const { players, selector, question, winOrLoseText } = this.state
     const newPlayers = [newPlayer, ...players]
     this.setState({
       players: newPlayers
     })
-    if(this.isPlayerOne()) {
-      returnGameState({ players: newPlayers, selector, question, winOrLoseText })
+    if (this.isPlayerOne()) {
+      this.socket.emit(BROADCAST_GAME_STATE, {
+        players: newPlayers,
+        selector,
+        question,
+        winOrLoseText
+      })
     }
   }
   handleNewPlayerSyncGameState = gameState => this.setState(gameState)
@@ -73,22 +84,23 @@ export default class App extends Component {
   onClickStartDamnGame = () => this.socket.emit(START_DAMN_GAME)
   onClickHandCard = playedCard => {
     this.setState(state => {
-      if(isNull(state.playedCard)) {
+      if (isNull(state.playedCard)) {
         return { playedCard }
       }
     })
   }
   onClickBoardCard = card => {
     const { selectedCardSocketId } = this.state
-    if(this.isCurrentlySelector() && isNull(selectedCardSocketId)) {
+    if (this.isCurrentlySelector() && isNull(selectedCardSocketId)) {
       this.socket.emit(SELECTION, card.socketId)
     }
   }
 
   // updates
-  update_playerPlayedACard = pPlayedCard => deNuld(pPlayedCard, this.state.playedCard)
+  update_playerPlayedACard = pPlayedCard =>
+    deNuld(pPlayedCard, this.state.playedCard)
   componentDidUpdate(pProps, pState) {
-    if(this.update_playerPlayedACard(pState.playedCard)) {
+    if (this.update_playerPlayedACard(pState.playedCard)) {
       // note this doesn't affect the board, this player is still waiting to receive his card for board by socket
       state => this.socket.emit(NEW_BOARDCARD, { card: state.playedCard })
     }
@@ -98,15 +110,19 @@ export default class App extends Component {
   componentDidMount() {
     this.socket.on(SET_SOCKET_ID, this.setSocketId)
     this.socket.on(NEW_PLAYER, this.handleNewPlayer)
-    this.socket.on(NEW_PLAYER_SYNC_GAME_STATE, this.handleNewPlayerSyncGameState())
+    this.socket.on(
+      BROADCAST_GAME_STATE,
+      this.handleNewPlayerSyncGameState
+    )
     this.socket.on(START_DAMN_GAME, this.handleStartDamnGame)
-    this.socket.on(NEW_BOARDCARD, function(card) {
+    this.socket.on(NEW_BOARDCARD, card => {
       this.setState({ card })
     })
-    this.socket.on(SELECTION, function(winnerSocketId) {
-      const players = this.state.players.map(player => player.playerSocketId === winnerSocketId ?
-        { ...player, score: player.score + 1 } :
-        player
+    this.socket.on(SELECTION, winnerSocketId => {
+      const players = this.state.players.map(player =>
+        player.playerSocketId === winnerSocketId
+          ? { ...player, score: player.score + 1 }
+          : player
       )
       this.setState({ players, selectedCardSocketId: winnerSocketId })
     })
@@ -114,19 +130,20 @@ export default class App extends Component {
 
   getWinOrLoseText = () => {
     const { selectedCardSocketId, players, playerSocketId } = this.state
-    if(!selectedCardSocketId) {
+    if (!selectedCardSocketId) {
       return null
     }
-    const winner = players.find(player => player.socketId === selectedCardSocketId)
-    if(this.isCurrentlySelector()) {
+    const winner = players.find(
+      player => player.socketId === selectedCardSocketId
+    )
+    if (this.isCurrentlySelector()) {
       return 'Terrible choice, ' + winner.name + ' wins.'
     }
-    if(winner.socketId === playerSocketId) {
+    if (winner.socketId === playerSocketId) {
       return 'You win.  You must be a terrible person...'
     }
-    return winner.name + ' wins, you\'re a loser.'
+    return winner.name + " wins, you're a loser."
   }
-
 
   render() {
     const {
@@ -138,41 +155,59 @@ export default class App extends Component {
       hand,
       board
     } = this.state
-    const winOrLoseText = this.getWinOrLoseText
+    const winOrLoseText = this.getWinOrLoseText()
     return (
-      <Fragment>
+      <section>
+        <img
+          className="bodyBackground"
+          src={catburrito}
+        />
         <header>
           <p className="title">
             .Gifs
-            <br/> Against
-            <br/> Humanity.
+            <br /> Against
+            <br /> Humanity.
           </p>
           <p className="worse">...A game for horribler people.</p>
         </header>
         <section className="scoreContainer">
           {players.map(player => (
-            <p key={player.playerSocketId} className="score1 score">{player.name}: {player.score}</p>))}
+            <p key={player.playerSocketId} className="score1 score">
+              {player.name}: {player.score}
+            </p>
+          ))}
         </section>
         <section className="board">
-          {winOrLoseText && (
-            <p className="winOrLose">{winOrLoseText}</p>
-          )}
-          {board.map(({ cardUrl, socketId }) => <Card key={cardUrl} cardUrl={cardUrl} onClick={this.onClickBoardCard}
-                                                      bounce={selectedCardSocketId === socketId} socketId={socketId}/>)}
+          {winOrLoseText && <p className="winOrLose">{winOrLoseText}</p>}
+          {board.map(({ cardUrl, socketId }) => (
+            <Card
+              key={cardUrl}
+              cardUrl={cardUrl}
+              onClick={this.onClickBoardCard}
+              bounce={selectedCardSocketId === socketId}
+              socketId={socketId}
+            />
+          ))}
         </section>
         <section className="question">{question}</section>
         <section className="turnDisplay">
           {this.isCurrentlySelector() ? turnMessage : notTurnMessage}
         </section>
         <section className="hand">
-          {hand.map(cardUrl => <Card key={cardUrl} cardUrl={cardUrl} socketId={playerSocketId}
-                                     onClick={this.onClickHandCard}/>)}
+          {hand.map(cardUrl => (
+            <Card
+              key={cardUrl}
+              cardUrl={cardUrl}
+              socketId={playerSocketId}
+              onClick={this.onClickHandCard}
+            />
+          ))}
         </section>
         <p className="playerName">You are {playerName}.</p>
         <footer>
           <div className="footerBackground" />
         </footer>
-      </Fragment>
+      </section>
     )
   }
 }
@@ -185,3 +220,5 @@ const Card = ({ cardUrl, socketId, bounce, onClick }) => (
     onClick={() => onClick({ cardUrl, socketId })}
   />
 )
+
+export default App
