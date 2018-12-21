@@ -4,17 +4,17 @@ const path = require('path')
 
 const outputDir = 'dist'
 module.exports = {
-  // devtool: 'source-map',
+  devtool: 'source-map',
   devServer: {
-    // historyApiFallback: true,
-    // hot: true,
-    // inline: true,
+    historyApiFallback: true,
+    hot: true,
+    inline: true,
     port: 3000,
     proxy: {
       '/socket.io': { target: 'http://localhost:5000', ws: true }
     }
   },
-  entry: ['./src/client/index.js'],
+  entry: ['./src/client/index.tsx'],
   output: {
     filename: 'bundle.js',
     path: path.join(__dirname, outputDir)
@@ -25,8 +25,17 @@ module.exports = {
       template: './public/index.html'
     })
   ],
+  resolve: {
+    extensions: ['.js', '.ts', '.tsx']
+  },
   module: {
     rules: [
+      {
+        test: /\.tsx?$/,
+        use: 'awesome-typescript-loader',
+        exclude: '/node_modules/'
+      },
+      { enforce: "pre", test: /\.js$/, loader: "source-map-loader" },
       {
         test: /\.js$/,
         exclude: /node_modules/,
@@ -39,7 +48,7 @@ module.exports = {
         use: ['style-loader', 'css-loader']
       },
       {
-        test: /\.(png|jp?g|gif)$/,
+        test: /\.(png|jpeg|jpg|gif)$/,
         use: [
           {
             loader: 'file-loader',

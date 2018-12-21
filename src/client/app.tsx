@@ -1,28 +1,39 @@
+import * as React from 'react'
 import { Component } from 'react'
 import { getGif } from './api'
-import io from 'socket.io-client'
+import ioClient from 'socket.io-client'
 import catburrito from './images/catburrito.jpg'
-import * as React from 'react'
 import {
-  SET_SOCKET_ID,
-  NEW_PLAYER,
   BROADCAST_GAME_STATE,
-  START_DAMN_GAME,
   NEW_BOARDCARD,
-  SELECTION
+  NEW_PLAYER,
+  SELECTION,
+  SET_SOCKET_ID,
+  START_DAMN_GAME
 } from '../constants'
 
-const turnMessage = "It's your turn!  Pick your favorite answer above!"
+const turnMessage = "It's your turn!  Pick your favorite` answer above!"
 const notTurnMessage = 'Pick a .gif below as your answer!'
 
 const isNull = val => val === null
 const deNuld = (prev, curr) => isNull(prev) && !isNull(curr)
-function classes() {
-  return arguments.filter(e => e)
+function classes(...args): any {
+  return args.filter(e => e)
+}
+interface State {
+  board: Array<{ cardUrl: string; socketId: string }>;
+  question: string;
+  players: Array<{ name: string; socketId: string; score: number }>;
+  selector: number;
+  selectedCardSocketId: string;
+  playerSocketId: string;
+  playerName: string;
+  hand: Array<{ cardUrl: string }>;
+  playedCard: string;
 }
 
 // State held in query params: roomId, og
-class App extends Component {
+class App extends Component<{},State> {
   state = {
     // global
     board: [], // { cardUrl, socketId }
@@ -36,8 +47,7 @@ class App extends Component {
     hand: [], // { cardUrl }
     playedCard: null
   }
-  socket = io()
-
+  socket = ioClient('http://localhost:5000')
   isPlayerOne = () =>
     this.state.players[0] &&
     this.state.players[0].socketId === this.state.playerSocketId
@@ -45,6 +55,24 @@ class App extends Component {
     this.state.players[this.state.selector] &&
     this.state.players[this.state.selector].socketId ===
       this.state.playerSocketId
+
+  componentDidMount() {
+    this.socket.on(SET_SOCKET_ID, this.setSocketId)
+    this.socket.on(NEW_PLAYER, this.handleNewPlayer)
+    this.socket.on(BROADCAST_GAME_STATE, this.handleNewPlayerSyncGameState)
+    this.socket.on(START_DAMN_GAME, this.handleStartDamnGame)
+    this.socket.on(NEW_BOARDCARD, card => {
+      this.setState({ playedCard: card })
+    })
+    this.socket.on(SELECTION, winnerSocketId => {
+      const players = this.state.players.map(player =>
+        player.playerSocketId === winnerSocketId
+          ? { ...player, score: player.score + 1 }
+          : player
+      )
+      this.setState({ players, selectedCardSocketId: winnerSocketId })
+    })
+  }
 
   deal = async () => {
     const newGifs = await Promise.all([
@@ -54,15 +82,17 @@ class App extends Component {
       getGif(),
       getGif()
     ])
-    const hand = newGifs.map(res => res.data.img_url)
+    const hand = newGifs.map((res: any) => res.data.img_url)
     this.setState({ hand })
   }
 
-  setSocketId = ({ socketId }) => this.setState({ playerSocketId: socketId })
+  setSocketId = ({ socketId }) => {
+    this.setState({ playerSocketId: socketId })
+  }
 
   // socket handlers
-  handleNewPlayer = (newPlayer) => {
-    const { players, selector, question, winOrLoseText } = this.state
+  handleNewPlayer = newPlayer => {
+    const { players, selector, question } = this.state
     const newPlayers = [newPlayer, ...players]
     this.setState({
       players: newPlayers
@@ -71,8 +101,7 @@ class App extends Component {
       this.socket.emit(BROADCAST_GAME_STATE, {
         players: newPlayers,
         selector,
-        question,
-        winOrLoseText
+        question
       })
     }
   }
@@ -82,10 +111,10 @@ class App extends Component {
   }
   // click handlers
   onClickStartDamnGame = () => this.socket.emit(START_DAMN_GAME)
-  onClickHandCard = playedCard => {
-    this.setState(state => {
-      if (isNull(state.playedCard)) {
-        return { playedCard }
+  onClickHandCard = clickedCard => {
+    this.setState(({ playedCard }) => {
+      if (isNull(playedCard)) {
+        return { playedCard: clickedCard }
       }
     })
   }
@@ -99,33 +128,12 @@ class App extends Component {
   // updates
   update_playerPlayedACard = pPlayedCard =>
     deNuld(pPlayedCard, this.state.playedCard)
+
   componentDidUpdate(pProps, pState) {
     if (this.update_playerPlayedACard(pState.playedCard)) {
       // note this doesn't affect the board, this player is still waiting to receive his card for board by socket
-      state => this.socket.emit(NEW_BOARDCARD, { card: state.playedCard })
+      state => this.socket.emit(NEW_BOARDCARD, { playedCard: state.playedCard })
     }
-  }
-
-  // mount
-  componentDidMount() {
-    this.socket.on(SET_SOCKET_ID, this.setSocketId)
-    this.socket.on(NEW_PLAYER, this.handleNewPlayer)
-    this.socket.on(
-      BROADCAST_GAME_STATE,
-      this.handleNewPlayerSyncGameState
-    )
-    this.socket.on(START_DAMN_GAME, this.handleStartDamnGame)
-    this.socket.on(NEW_BOARDCARD, card => {
-      this.setState({ card })
-    })
-    this.socket.on(SELECTION, winnerSocketId => {
-      const players = this.state.players.map(player =>
-        player.playerSocketId === winnerSocketId
-          ? { ...player, score: player.score + 1 }
-          : player
-      )
-      this.setState({ players, selectedCardSocketId: winnerSocketId })
-    })
   }
 
   getWinOrLoseText = () => {
@@ -158,10 +166,7 @@ class App extends Component {
     const winOrLoseText = this.getWinOrLoseText()
     return (
       <section>
-        <img
-          className="bodyBackground"
-          src={catburrito}
-        />
+        <img className="bodyBackground" src={catburrito} />
         <header>
           <p className="title">
             .Gifs
@@ -212,9 +217,15 @@ class App extends Component {
   }
 }
 
-const Card = ({ cardUrl, socketId, bounce, onClick }) => (
+export interface CardProps {
+  cardUrl: string;
+  socketId: string;
+  bounce?: boolean;
+  onClick: (string) => void;
+}
+
+const Card = ({ cardUrl, socketId, bounce, onClick }: CardProps) => (
   <img
-    socketId={socketId}
     className={classes('handcard', bounce && 'bounce')}
     src={cardUrl}
     onClick={() => onClick({ cardUrl, socketId })}
