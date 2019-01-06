@@ -1,5 +1,4 @@
-module.exports = {
-questions: [
+export const questions = [
 
 "________?  There's an app for that.",
 
@@ -79,4 +78,4 @@ questions: [
 
 
 
-]}
+]

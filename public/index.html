@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <title>.gifsagainsthumanity</title>
   <script>
-      isOriginator = !window.location.search.includes('roomId')
+      const isOriginator = !window.location.search.includes('roomId')
       if (isOriginator) {
-          window.location.search = `roomId=${Math.random() * 100000}&og=true`
+          window.location.search = `roomId=${Math.round(Math.random() * 100000000000)}`
       }
   </script>
 </head>

@@ -1,19 +1,13 @@
 {
-  "defaultSeverity": "warning",
-  "extends": ["tslint:recommended", "tslint-react", "tslint-config-prettier", "tslint-eslint-rules"],
+  "extends": ["tslint-react", "tslint-config-prettier"],
   "linterOptions": {
-    "exclude": [
-      "config/**/*.js",
-      "node_modules/**/*.ts"
-    ]
+    "exclude": ["config/**/*.js", "node_modules/**/*"]
   },
   "rules": {
-    "member-access": false,
-    "object-literal-sort-keys": false,
-    "variable-name": false,
-    "ordered-imports": false,
-    "jsx-no-lambda": false,
-    "no-unused-expression": false,
-    "interface-name": false
+    "adjacent-overload-signatures": true,
+    "no-unsafe-any": true,
+    "no-implicit-dependencies": true,
+    "no-unused-variable": true,
+    "no-duplicate-imports": true
   }
 }

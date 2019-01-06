@@ -52,7 +52,7 @@ body::after {
   height: 100%;
   z-index: -1;
   opacity: .3;
-  background-image: url("./images/dogCupcakes.jpg");
+  background-image: url("./images/catburrito.jpg");
   background-size: 100% 100%;
 }
 
