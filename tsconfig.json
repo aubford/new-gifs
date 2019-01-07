@@ -3,7 +3,8 @@
     "sourceMap": true,
     "target": "ES2017",
     "jsx": "React",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "noEmit": true
   },
   "include": ["src/**/*"]
 }

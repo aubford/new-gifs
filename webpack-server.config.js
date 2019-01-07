@@ -15,7 +15,12 @@ module.exports = {
   externals: [nodeExternals()],
   target: "node",
   node: {
-    __dirname: false
+    global: false,
+    process: false,
+    __filename: false,
+    __dirname: false,
+    Buffer: false,
+    setImmediate: false
   },
   module: {
     rules: [
