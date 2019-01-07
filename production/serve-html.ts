@@ -1,5 +1,5 @@
-import express from "express"
-import path from "path"
+import * as express from "express"
+import * as path from "path"
 import { server } from "../src/server/server"
 
 server.use(express.static(path.join(__dirname, "public")))
