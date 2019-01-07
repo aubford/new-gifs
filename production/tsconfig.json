@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "sourceMap": true,
+    "target": "ES2017",
+    "jsx": "React",
+    "moduleResolution": "node",
+    "noEmit": true
+  }
+}

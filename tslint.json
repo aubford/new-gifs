@@ -6,8 +6,7 @@
   "rules": {
     "adjacent-overload-signatures": true,
     "no-unsafe-any": true,
-    "no-implicit-dependencies": true,
-    "no-unused-variable": true,
-    "no-duplicate-imports": true
+    "no-duplicate-imports": true,
+    "jsx-no-lambda": false
   }
 }

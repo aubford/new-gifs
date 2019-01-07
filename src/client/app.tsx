@@ -1,5 +1,4 @@
 import * as React from "react"
-import { Component } from "react"
 import { getGif } from "./api"
 import * as ioClient from "socket.io-client"
 import {
@@ -11,6 +10,7 @@ import {
   SET_SOCKET_ID,
   START_DAMN_GAME
 } from "../constants"
+const { Component } = React
 
 const getQueryParams = window => {
   const search = window.location.search.substring(1)
