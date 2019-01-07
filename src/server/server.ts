@@ -10,8 +10,7 @@ import {
   START_DAMN_GAME
 } from '../constants'
 
-const server = express()
-server.use(express.static('dist'))
+export const server = express()
 const http = require('http').Server(server)
 const io = require('socket.io')(http)
 

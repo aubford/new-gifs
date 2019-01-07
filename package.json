@@ -45,14 +45,15 @@
     "webpack": "^4.26.0",
     "webpack-cli": "^3.1.2",
     "webpack-dev-middleware": "^3.4.0",
-    "webpack-dev-server": "^3.1.10"
+    "webpack-dev-server": "^3.1.10",
+    "webpack-node-externals": "^1.7.2"
   },
   "scripts": {
-    "tslint-check": "tslint-config-prettier-check ./tslint.json",
-    "start": "npm run build && node src/server/server.ts",
+    "start": "node dist/server-bundle.js",
+    "build": "webpack --mode production --progress --colors && webpack --config webpack-server.config.js --progress --colors",
+    "prod": "npm run build && npm run start",
     "server": "nodemon",
-    "client": "webpack-dev-server --mode development --devtool inline-source-map --hot",
-    "build": "webpack --mode production --progress --colors",
+    "client": "webpack-dev-server --mode development --hot",
     "dev": "concurrently \"npm run server\" \"npm run client\""
   },
   "babel": {
@@ -61,7 +62,8 @@
         "@babel/env",
         {
           "targets": {
-            "chrome": "70"
+            "chrome": "70",
+            "node": "current"
           },
           "useBuiltIns": "entry"
         }

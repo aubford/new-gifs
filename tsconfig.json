@@ -1,13 +1,9 @@
 {
   "compilerOptions": {
     "sourceMap": true,
-    //  "experimentalDecorators": true,
-    //  "extendedDiagnostics": true,
-    "outDir": "./dist/",
     "target": "ES2017",
     "jsx": "React",
     "moduleResolution": "node"
   },
-  "exclude": ["node_modules", "old"],
   "include": ["src/**/*"]
 }

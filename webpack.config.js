@@ -2,7 +2,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin")
 const CleanWebpackPlugin = require("clean-webpack-plugin")
 const path = require("path")
 
-const outputDir = "dist"
+const outputDir = "dist/public"
 module.exports = {
   devtool: "source-map",
   devServer: {
@@ -22,7 +22,7 @@ module.exports = {
   plugins: [
     new CleanWebpackPlugin([outputDir]),
     new HtmlWebpackPlugin({
-      template: "./public/index.html"
+      template: "./src/client/index.html"
     })
   ],
   resolve: {
@@ -34,26 +34,13 @@ module.exports = {
         test: /\.tsx?$/,
         use: "awesome-typescript-loader"
       },
-      { enforce: "pre", test: /\.js$/, loader: "source-map-loader" },
-      {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        use: {
-          loader: "babel-loader"
-        }
-      },
       {
         test: /\.css$/,
         use: ["style-loader", "css-loader"]
       },
       {
         test: /\.(png|jpeg|jpg|gif)$/,
-        use: [
-          {
-            loader: "file-loader",
-            options: {}
-          }
-        ]
+        use: "file-loader"
       },
       {
         test: /\.(eot|woff|woff2|ttf)$/,
