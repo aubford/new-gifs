@@ -22,14 +22,14 @@ body {
 
 @keyframes bouncy {
     0% {
-        bottom: 0
+        bottom: 0;
     }
     100% {
-        bottom: 10vh
+        bottom: 10vh;
     }
 }
 
-bounce {
+.bounce {
     animation: bouncy infinite;
 }
 

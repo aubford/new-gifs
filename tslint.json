@@ -1,11 +1,10 @@
 {
   "extends": ["tslint-react", "tslint-config-prettier"],
   "linterOptions": {
-    "exclude": ["config/**/*.js", "node_modules/**/*"]
+    "exclude": ["node_modules/**/*"]
   },
   "rules": {
     "adjacent-overload-signatures": true,
-    "no-unsafe-any": true,
     "no-duplicate-imports": true,
     "jsx-no-lambda": false
   }

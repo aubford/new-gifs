@@ -23,7 +23,7 @@ const getQueryParams = window => {
   return params
 }
 
-const turnMessage = "It's your turn!  Pick your favorite` answer above!"
+const turnMessage = "It's your turn!  Pick your favorite answer above!"
 const notTurnMessage = "Pick a .gif below as your answer!"
 
 const isNull = val => val === null
