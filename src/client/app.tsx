@@ -58,7 +58,7 @@ class App extends Component<{}, State> {
     selectedCardSocketId: null,
     // this player
     socketId: null,
-    playerName: "Some dumb fucking name",
+    playerName: `${Math.random()}`,
     hand: [],
     playedCard: null
   }
@@ -101,36 +101,27 @@ class App extends Component<{}, State> {
 
   // socket handlers
   handleSetSocketId = socketId => {
+    this.setState({ socketId }, () => {
+      this.socket.emit(SET_ROOM, getQueryParams(window)["roomId"])
+    })
+  }
+  handleNewPlayer = ({ socketId, name }) => {
+    const { selector, question, players } = this.state
+    const newPlayers = [...players, { socketId, score: 0, name } as Player]
     this.setState(
       {
-        socketId,
-        players: [
-          {
-            name: this.state.playerName,
-            socketId,
-            score: 0
-          }
-        ]
+        players: newPlayers
       },
       () => {
-        this.socket.emit(SET_ROOM, getQueryParams(window)["roomId"])
+        if (this.isPlayerOne()) {
+          this.socket.emit(BROADCAST_GAME_STATE, {
+            newPlayers,
+            selector,
+            question
+          })
+        }
       }
     )
-  }
-  handleNewPlayer = newPlayer => {
-    const { players, selector, question } = this.state
-    const newPlayers = [...players, newPlayer]
-    this.setState({
-      players: newPlayers
-    })
-    if (this.isPlayerOne()) {
-      console.log("playerone")
-      this.socket.emit(BROADCAST_GAME_STATE, {
-        players: newPlayers,
-        selector,
-        question
-      })
-    }
   }
   handleBroadcastGameState = gameState => {
     console.log("gameState", gameState)

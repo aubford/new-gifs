@@ -1,5 +1,5 @@
-import * as express from 'express'
-import { questions } from './questionBank'
+import * as express from "express"
+import { questions } from "./questionBank"
 
 import {
   BROADCAST_GAME_STATE,
@@ -8,21 +8,20 @@ import {
   SELECTION,
   SET_ROOM,
   SET_SOCKET_ID,
-  START_DAMN_GAME,
-  Player
-} from '../constants'
-import logg from '../log'
+  START_DAMN_GAME
+} from "../constants"
+import logg from "../log"
 console.logg = logg
 
 export const server = express()
-const http = require('http').Server(server)
-const io = require('socket.io')(http)
+const http = require("http").Server(server)
+const io = require("socket.io")(http)
 
 const generateQuestion = () => {
   return Math.floor(Math.random() * questions.length)
 }
 
-io.on('connection', socket => {
+io.on("connection", socket => {
   let roomId
   socket.emit(SET_SOCKET_ID, socket.id)
   socket.on(SET_ROOM, id => {
@@ -30,9 +29,8 @@ io.on('connection', socket => {
     socket.join(roomId, () => {
       socket.to(roomId).broadcast.emit(NEW_PLAYER, {
         socketId: socket.id,
-        name: 'New Player',
-        score: 0
-      } as Player)
+        name: `splice step herre ${Math.random()}`
+      })
     })
   })
   socket.on(BROADCAST_GAME_STATE, gameState => {
@@ -41,7 +39,7 @@ io.on('connection', socket => {
   })
 
   socket.on(START_DAMN_GAME, () => {
-    console.logg('************START_DAMN_GAME**************', roomId)
+    console.logg("************START_DAMN_GAME**************", roomId)
     socket.to(roomId).emit(START_DAMN_GAME, generateQuestion())
   })
 
@@ -59,5 +57,5 @@ io.on('connection', socket => {
 })
 
 http.listen(5000, () => {
-  console.log('listening on *:5000') // eslint-disable-line
+  console.log("listening on *:5000") // eslint-disable-line
 })
