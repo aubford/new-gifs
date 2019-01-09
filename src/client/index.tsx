@@ -2,6 +2,8 @@ import * as React    from 'react'
 import * as ReactDOM from 'react-dom'
 import './main.css'
 import App      from './app'
+import logg from '../log'
+console.logg = logg
 
 // @ts-ignore
 console.logg = (name, value) => console.log(

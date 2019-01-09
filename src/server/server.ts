@@ -1,5 +1,6 @@
 import * as express from 'express'
 import { questions } from './questionBank'
+
 import {
   BROADCAST_GAME_STATE,
   NEW_BOARDCARD,
@@ -7,8 +8,11 @@ import {
   SELECTION,
   SET_ROOM,
   SET_SOCKET_ID,
-  START_DAMN_GAME
+  START_DAMN_GAME,
+  Player
 } from '../constants'
+import logg from '../log'
+console.logg = logg
 
 export const server = express()
 const http = require('http').Server(server)
@@ -25,19 +29,19 @@ io.on('connection', socket => {
     roomId = id
     socket.join(roomId, () => {
       socket.to(roomId).broadcast.emit(NEW_PLAYER, {
-        playerSocketId: socket.id,
+        socketId: socket.id,
         name: 'New Player',
         score: 0
-      })
+      } as Player)
     })
   })
-
   socket.on(BROADCAST_GAME_STATE, gameState => {
+    console.logg("gamesState", gameState)
     socket.to(roomId).broadcast.emit(BROADCAST_GAME_STATE, gameState)
   })
 
   socket.on(START_DAMN_GAME, () => {
-    console.log('************START_DAMN_GAME**************', roomId)
+    console.logg('************START_DAMN_GAME**************', roomId)
     socket.to(roomId).emit(START_DAMN_GAME, generateQuestion())
   })
 

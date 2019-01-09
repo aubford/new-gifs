@@ -2,7 +2,7 @@
   "compilerOptions": {
     "sourceMap": true,
     "target": "ES2017",
-    "jsx": "React",
+    "jsx": "react",
     "moduleResolution": "node",
     "noEmit": true
   }

@@ -8,8 +8,11 @@ import {
   SELECTION,
   SET_ROOM,
   SET_SOCKET_ID,
-  START_DAMN_GAME
+  START_DAMN_GAME,
+  Player,
+  Card
 } from "../constants"
+
 const { Component } = React
 
 const getQueryParams = window => {
@@ -28,18 +31,19 @@ const notTurnMessage = "Pick a .gif below as your answer!"
 
 const isNull = val => val === null
 const deNuld = (prev, curr) => isNull(prev) && !isNull(curr)
-function classes(...args): any {
-  return args.filter(e => e)
+function classes(...args): string {
+  return args.filter(e => e).join(" ")
 }
+
 interface State {
-  board: Array<{ cardUrl: string; socketId: string }>
+  board: Card[]
   question: string
-  players: Array<{ name: string; socketId: string; score: number }>
+  players: Player[]
   selector: number
   selectedCardSocketId: string
-  playerSocketId: string
+  socketId: string
   playerName: string
-  hand: Array<{ cardUrl: string }>
+  hand: Card[]
   playedCard: string
 }
 
@@ -47,37 +51,34 @@ interface State {
 class App extends Component<{}, State> {
   state = {
     // global
-    board: [], // { cardUrl, socketId }
+    board: [],
     question: "",
-    players: [], // { name, socketId, score }
+    players: [],
     selector: 0,
     selectedCardSocketId: null,
     // this player
-    playerSocketId: null,
+    socketId: null,
     playerName: "Some dumb fucking name",
-    hand: [], // { cardUrl }
+    hand: [],
     playedCard: null
   }
   socket = ioClient("http://localhost:5000")
-  isPlayerOne = () =>
-    this.state.players[0] &&
-    this.state.players[0].socketId === this.state.playerSocketId
+  isPlayerOne = () => this.state.players[0].socketId === this.state.socketId
   isCurrentlySelector = () =>
     this.state.players[this.state.selector] &&
-    this.state.players[this.state.selector].socketId ===
-      this.state.playerSocketId
+    this.state.players[this.state.selector].socketId === this.state.socketId
 
   componentDidMount() {
-    this.socket.on(SET_SOCKET_ID, this.setSocketId)
+    this.socket.on(SET_SOCKET_ID, this.handleSetSocketId)
     this.socket.on(NEW_PLAYER, this.handleNewPlayer)
-    this.socket.on(BROADCAST_GAME_STATE, this.handleNewPlayerSyncGameState)
+    this.socket.on(BROADCAST_GAME_STATE, this.handleBroadcastGameState)
     this.socket.on(START_DAMN_GAME, this.handleStartDamnGame)
     this.socket.on(NEW_BOARDCARD, playedCard => {
       this.setState({ playedCard })
     })
     this.socket.on(SELECTION, winnerSocketId => {
       const players = this.state.players.map(player =>
-        player.playerSocketId === winnerSocketId
+        player.socketId === winnerSocketId
           ? { ...player, score: player.score + 1 }
           : player
       )
@@ -93,18 +94,20 @@ class App extends Component<{}, State> {
       getGif(),
       getGif()
     ])
+    console.log("newGifs", newGifs)
     const hand = newGifs.map((res: any) => res.data.img_url)
     this.setState({ hand })
   }
 
-  setSocketId = playerSocketId => {
+  // socket handlers
+  handleSetSocketId = socketId => {
     this.setState(
       {
-        playerSocketId,
+        socketId,
         players: [
           {
             name: this.state.playerName,
-            socketId: playerSocketId,
+            socketId,
             score: 0
           }
         ]
@@ -114,15 +117,14 @@ class App extends Component<{}, State> {
       }
     )
   }
-  // socket handlers
   handleNewPlayer = newPlayer => {
-    console.log("newPlayer", this.state.players)
     const { players, selector, question } = this.state
-    const newPlayers = [newPlayer, ...players]
+    const newPlayers = [...players, newPlayer]
     this.setState({
       players: newPlayers
     })
     if (this.isPlayerOne()) {
+      console.log("playerone")
       this.socket.emit(BROADCAST_GAME_STATE, {
         players: newPlayers,
         selector,
@@ -130,7 +132,10 @@ class App extends Component<{}, State> {
       })
     }
   }
-  handleNewPlayerSyncGameState = gameState => this.setState(gameState)
+  handleBroadcastGameState = gameState => {
+    console.log("gameState", gameState)
+    this.setState(gameState)
+  }
   handleStartDamnGame = question => {
     this.setState({ question }, this.deal)
   }
@@ -148,11 +153,9 @@ class App extends Component<{}, State> {
       this.socket.emit(SELECTION, card.socketId)
     }
   }
-
   // updates
   updated_playerPlayedACard = pPlayedCard =>
     deNuld(pPlayedCard, this.state.playedCard)
-
   componentDidUpdate(pProps, pState) {
     if (this.updated_playerPlayedACard(pState.playedCard)) {
       // note this doesn't affect the board, this player is still waiting to receive his card for board by socket
@@ -161,7 +164,7 @@ class App extends Component<{}, State> {
   }
 
   getWinOrLoseText = () => {
-    const { selectedCardSocketId, players, playerSocketId } = this.state
+    const { selectedCardSocketId, players, socketId } = this.state
     if (!selectedCardSocketId) {
       return null
     }
@@ -171,7 +174,7 @@ class App extends Component<{}, State> {
     if (this.isCurrentlySelector()) {
       return "Terrible choice, " + winner.name + " wins."
     }
-    if (winner.socketId === playerSocketId) {
+    if (winner.socketId === socketId) {
       return "You win.  You must be a terrible person..."
     }
     return winner.name + " wins, you're a loser."
@@ -182,12 +185,13 @@ class App extends Component<{}, State> {
       question,
       players,
       selectedCardSocketId,
-      playerSocketId,
+      socketId,
       playerName,
       hand,
       board
     } = this.state
     const winOrLoseText = this.getWinOrLoseText()
+    console.log("this.state", this.state)
     return (
       <section>
         <header>
@@ -200,7 +204,7 @@ class App extends Component<{}, State> {
         </header>
         <section className="scoreContainer">
           {players.map(player => (
-            <p key={player.playerSocketId} className="score1 score">
+            <p key={player.socketId} className="score1 score">
               {player.name}: {player.score}
             </p>
           ))}
@@ -208,7 +212,7 @@ class App extends Component<{}, State> {
         <section className="board">
           {winOrLoseText && <p className="winOrLose">{winOrLoseText}</p>}
           {board.map(({ cardUrl, socketId }) => (
-            <Card
+            <BoardCard
               key={cardUrl}
               cardUrl={cardUrl}
               onClick={this.onClickBoardCard}
@@ -228,10 +232,10 @@ class App extends Component<{}, State> {
         </section>
         <section className="hand">
           {hand.map(cardUrl => (
-            <Card
+            <BoardCard
               key={cardUrl}
               cardUrl={cardUrl}
-              socketId={playerSocketId}
+              socketId={socketId}
               onClick={this.onClickHandCard}
             />
           ))}
@@ -252,7 +256,7 @@ export interface CardProps {
   onClick: (string) => void
 }
 
-const Card = ({ cardUrl, socketId, bounce, onClick }: CardProps) => (
+const BoardCard = ({ cardUrl, socketId, bounce, onClick }: CardProps) => (
   <img
     className={classes("handcard", bounce && "bounce")}
     src={cardUrl}
