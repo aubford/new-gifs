@@ -1,6 +1,5 @@
 import * as express from "express"
 import { questions } from "./questionBank"
-
 import {
   BROADCAST_GAME_STATE,
   NEW_BOARDCARD,
@@ -34,12 +33,10 @@ io.on("connection", socket => {
     })
   })
   socket.on(BROADCAST_GAME_STATE, gameState => {
-    console.logg("gamesState", gameState)
     socket.to(roomId).broadcast.emit(BROADCAST_GAME_STATE, gameState)
   })
 
   socket.on(START_DAMN_GAME, () => {
-    console.logg("************START_DAMN_GAME**************", roomId)
     socket.to(roomId).emit(START_DAMN_GAME, generateQuestion())
   })
 

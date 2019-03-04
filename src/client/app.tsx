@@ -182,7 +182,6 @@ class App extends Component<{}, State> {
       board
     } = this.state
     const winOrLoseText = this.getWinOrLoseText()
-    console.log("this.state", this.state)
     return (
       <section>
         <header>

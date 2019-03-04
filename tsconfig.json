@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
-    "sourceMap": true,
-    "target": "ES2017",
+//    "sourceMap": true,
+    "target": "es2017",
+    "lib": ["es6", "dom"],
     "jsx": "react",
-    "noUnusedLocals": true,
+//    "noUnusedLocals": true,
     "moduleResolution": "node",
     "noEmit": true
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "test-utils/**/*"]
 }

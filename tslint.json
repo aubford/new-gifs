@@ -5,7 +5,6 @@
   },
   "rules": {
     "adjacent-overload-signatures": true,
-    "no-duplicate-imports": true,
     "jsx-no-lambda": false
   }
 }
