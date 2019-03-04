@@ -1,13 +1,13 @@
 import * as React from 'react'
 import '../server/server'
 import App from '../client/app'
-import { mount } from "enzyme"
+import { TestRunner } from "../../test-utils/test-api"
 
-// window.location.search = '123'
-const generateApp = () => mount(<App />)
+let testRunner
+beforeAll(() => {
+  testRunner = new TestRunner(<App/>)
+})
 
 test('test', () => {
-  const app = generateApp()
-  console.log("app", app.state())
-  expect(app).toBeTruthy()
+  testRunner.verifyRender('.scoreContainer', '.winOrLose', '.title')
 })

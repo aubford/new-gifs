@@ -68,24 +68,6 @@ class App extends Component<{}, State> {
     this.state.players[this.state.selector] &&
     this.state.players[this.state.selector].socketId === this.state.socketId
 
-  componentDidMount() {
-    this.socket.on(SET_SOCKET_ID, this.handleSetSocketId)
-    this.socket.on(NEW_PLAYER, this.handleNewPlayer)
-    this.socket.on(BROADCAST_GAME_STATE, this.handleBroadcastGameState)
-    this.socket.on(START_DAMN_GAME, this.handleStartDamnGame)
-    this.socket.on(NEW_BOARDCARD, playedCard => {
-      this.setState({ playedCard })
-    })
-    this.socket.on(SELECTION, winnerSocketId => {
-      const players = this.state.players.map(player =>
-        player.socketId === winnerSocketId
-          ? { ...player, score: player.score + 1 }
-          : player
-      )
-      this.setState({ players, selectedCardSocketId: winnerSocketId })
-    })
-  }
-
   deal = async () => {
     const newGifs = await Promise.all([
       getGif(),
@@ -171,6 +153,24 @@ class App extends Component<{}, State> {
     return winner.name + " wins, you're a loser."
   }
 
+  componentDidMount() {
+    this.socket.on(SET_SOCKET_ID, this.handleSetSocketId)
+    this.socket.on(NEW_PLAYER, this.handleNewPlayer)
+    this.socket.on(BROADCAST_GAME_STATE, this.handleBroadcastGameState)
+    this.socket.on(START_DAMN_GAME, this.handleStartDamnGame)
+    this.socket.on(NEW_BOARDCARD, playedCard => {
+      this.setState({ playedCard })
+    })
+    this.socket.on(SELECTION, winnerSocketId => {
+      const players = this.state.players.map(player =>
+        player.socketId === winnerSocketId
+          ? { ...player, score: player.score + 1 }
+          : player
+      )
+      this.setState({ players, selectedCardSocketId: winnerSocketId })
+    })
+  }
+
   render() {
     const {
       question,
@@ -192,6 +192,7 @@ class App extends Component<{}, State> {
           </p>
           <p className="worse">...A game for horribler people.</p>
         </header>
+
         <section className="scoreContainer">
           {players.map(player => (
             <p key={player.socketId} className="score1 score">
@@ -199,6 +200,7 @@ class App extends Component<{}, State> {
             </p>
           ))}
         </section>
+
         <section className="board">
           {winOrLoseText && <p className="winOrLose">{winOrLoseText}</p>}
           {board.map(({ cardUrl, socketId }) => (
@@ -211,15 +213,18 @@ class App extends Component<{}, State> {
             />
           ))}
         </section>
+
         <section className="question">
           {!question && (
             <button onClick={this.onClickStartDamnGame}>Start Game</button>
           )}
           {question}
         </section>
+
         <section className="turnDisplay">
           {this.isCurrentlySelector() ? turnMessage : notTurnMessage}
         </section>
+
         <section className="hand">
           {hand.map(cardUrl => (
             <BoardCard
@@ -230,6 +235,7 @@ class App extends Component<{}, State> {
             />
           ))}
         </section>
+
         <p className="playerName">You are {playerName}.</p>
         <footer>
           <div className="footerBackground" />
