@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="JavaScriptLibraryMappings">
+    <file url="file://$PROJECT_DIR$" libraries="{Node.js Core}" />
+    <file url="PROJECT" libraries="{@types/babel-core, @types/babel-plugin-syntax-jsx, @types/babel-types, @types/babel-webpack-plugin, @types/css, @types/enzyme, @types/enzyme-adapter-react-16, @types/es6-collections, @types/flowjs, @types/jest, @types/lodash, @types/material-ui, @types/node, @types/react, @types/react-addons-create-fragment, @types/react-addons-css-transition-group, @types/react-dom, @types/react-motion, @types/react-redux, @types/react-router, @types/react-router-redux, @types/redux-action, @types/webpack, new-gifs/node_modules}" />
+  </component>
+</project>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/.idea" />
+      <excludeFolder url="file://$MODULE_DIR$/dist" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="@types/babel-traverse" level="application" />
+    <orderEntry type="library" name="@types/es-feature-detection" level="application" />
+    <orderEntry type="library" name="@types/es6-shim" level="application" />
+    <orderEntry type="library" name="@types/node-validator" level="application" />
+    <orderEntry type="library" name="@types/react-autosuggest" level="application" />
+    <orderEntry type="library" name="@types/express" level="application" />
+    <orderEntry type="library" name="@types/babel-core" level="application" />
+    <orderEntry type="library" name="@types/babel-plugin-syntax-jsx" level="application" />
+    <orderEntry type="library" name="@types/babel-types" level="application" />
+    <orderEntry type="library" name="@types/babel-webpack-plugin" level="application" />
+    <orderEntry type="library" name="@types/css" level="application" />
+    <orderEntry type="library" name="@types/enzyme" level="application" />
+    <orderEntry type="library" name="@types/enzyme-adapter-react-16" level="application" />
+    <orderEntry type="library" name="@types/es6-collections" level="application" />
+    <orderEntry type="library" name="@types/flowjs" level="application" />
+    <orderEntry type="library" name="@types/jest" level="application" />
+    <orderEntry type="library" name="@types/lodash" level="application" />
+    <orderEntry type="library" name="@types/material-ui" level="application" />
+    <orderEntry type="library" name="@types/node" level="application" />
+    <orderEntry type="library" name="@types/prettier" level="application" />
+    <orderEntry type="library" name="@types/react" level="application" />
+    <orderEntry type="library" name="@types/react-addons-create-fragment" level="application" />
+    <orderEntry type="library" name="@types/react-addons-css-transition-group" level="application" />
+    <orderEntry type="library" name="@types/react-dom" level="application" />
+    <orderEntry type="library" name="@types/react-motion" level="application" />
+    <orderEntry type="library" name="@types/react-redux" level="application" />
+    <orderEntry type="library" name="@types/react-router" level="application" />
+    <orderEntry type="library" name="@types/react-router-redux" level="application" />
+    <orderEntry type="library" name="@types/redux-action" level="application" />
+    <orderEntry type="library" name="@types/socket.io" level="application" />
+    <orderEntry type="library" name="@types/webpack" level="application" />
+  </component>
+</module>
